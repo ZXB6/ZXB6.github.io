@@ -1,0 +1,484 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>关联规则挖掘Aprior算法 | L!sten</title><meta name="author" content="ZXXB"><meta name="copyright" content="ZXXB"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="在本案例中，我们根据教材中介绍的关联规则算法，寻找潜在的关联规则。APRIOR算法是一种发现频繁项集的基本算法，接下来，我们将使用Python语言详细实现APRIOR的过程。 在具体编写算法的过程中，我们使用一个简单的toy data数据集Data，来验证算法的正确性。 1 APRIOR算法实现 根据APRIOR算法的步骤，创建候选 C1 集，并由此创建频繁 L1 项集。 12345678910D">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关联规则挖掘Aprior算法">
+<meta property="og:url" content="https://zxb6.github.io/2022/11/09/%E5%85%B3%E8%81%94%E8%A7%84%E5%88%99%E6%8C%96%E6%8E%98Aprior%E7%AE%97%E6%B3%95/index.html">
+<meta property="og:site_name" content="L!sten">
+<meta property="og:description" content="在本案例中，我们根据教材中介绍的关联规则算法，寻找潜在的关联规则。APRIOR算法是一种发现频繁项集的基本算法，接下来，我们将使用Python语言详细实现APRIOR的过程。 在具体编写算法的过程中，我们使用一个简单的toy data数据集Data，来验证算法的正确性。 1 APRIOR算法实现 根据APRIOR算法的步骤，创建候选 C1 集，并由此创建频繁 L1 项集。 12345678910D">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://hakaimg.com/i/2022/11/09/po9j12.jpg">
+<meta property="article:published_time" content="2022-11-09T07:38:16.000Z">
+<meta property="article:modified_time" content="2022-11-09T07:59:37.106Z">
+<meta property="article:author" content="ZXXB">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://hakaimg.com/i/2022/11/09/po9j12.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://zxb6.github.io/2022/11/09/%E5%85%B3%E8%81%94%E8%A7%84%E5%88%99%E6%8C%96%E6%8E%98Aprior%E7%AE%97%E6%B3%95/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '关联规则挖掘Aprior算法',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: false,
+  postUpdate: '2022-11-09 15:59:37'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><!-- hexo injector head_end start --><link rel="stylesheet" href="https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/clock.min.css" /><link rel="stylesheet" href="https://cdn.cbd.int/hexo-butterfly-wowjs/lib/animate.min.css" media="print" onload="this.media='screen'"><link rel="stylesheet" href="https://npm.elemecdn.com/anzhiyu-blog@2.0.4/css/runtime/runtime.min.css" media="print" onload="this.media='all'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.2.0"><link rel="alternate" href="/atom.xml" title="L!sten" type="application/atom+xml">
+</head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/bangumis/index.html"><i class="fa-fw fas fa-home"></i><span> 追番</span></a></div><div class="menus_item"><a class="site-page" href="/comments/"><i class="fa-fw fas fa-envelope"></i><span> 留言板</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://hakaimg.com/i/2022/11/09/po9j12.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">L!sten</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/bangumis/index.html"><i class="fa-fw fas fa-home"></i><span> 追番</span></a></div><div class="menus_item"><a class="site-page" href="/comments/"><i class="fa-fw fas fa-envelope"></i><span> 留言板</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">关联规则挖掘Aprior算法</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-11-09T07:38:16.000Z" title="发表于 2022-11-09 15:38:16">2022-11-09</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-11-09T07:59:37.106Z" title="更新于 2022-11-09 15:59:37">2022-11-09</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="关联规则挖掘Aprior算法"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>在本案例中，我们根据教材中介绍的关联规则算法，寻找潜在的关联规则。APRIOR算法是一种发现频繁项集的基本算法，接下来，我们将使用Python语言详细实现APRIOR的过程。</p>
+<p>在具体编写算法的过程中，我们使用一个简单的toy data数据集Data，来验证算法的正确性。</p>
+<p>1 APRIOR算法实现 根据APRIOR算法的步骤，创建候选 C1 集，并由此创建频繁 L1 项集。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Data = &#123;<span class="string">&#x27;user1&#x27;</span>:[<span class="string">&#x27;I1&#x27;</span>,<span class="string">&#x27;I2&#x27;</span>,<span class="string">&#x27;I5&#x27;</span>],</span><br><span class="line">        <span class="string">&#x27;user2&#x27;</span>:[<span class="string">&#x27;I2&#x27;</span>,<span class="string">&#x27;I4&#x27;</span>],</span><br><span class="line">        <span class="string">&#x27;user3&#x27;</span>:[<span class="string">&#x27;I2&#x27;</span>,<span class="string">&#x27;I3&#x27;</span>],</span><br><span class="line">        <span class="string">&#x27;user4&#x27;</span>:[<span class="string">&#x27;I1&#x27;</span>,<span class="string">&#x27;I2&#x27;</span>,<span class="string">&#x27;I4&#x27;</span>],</span><br><span class="line">        <span class="string">&#x27;user5&#x27;</span>:[<span class="string">&#x27;I1&#x27;</span>,<span class="string">&#x27;I3&#x27;</span>],</span><br><span class="line">        <span class="string">&#x27;user6&#x27;</span>:[<span class="string">&#x27;I2&#x27;</span>,<span class="string">&#x27;I3&#x27;</span>],</span><br><span class="line">        <span class="string">&#x27;user7&#x27;</span>:[<span class="string">&#x27;I1&#x27;</span>,<span class="string">&#x27;I3&#x27;</span>],</span><br><span class="line">        <span class="string">&#x27;user8&#x27;</span>:[<span class="string">&#x27;I1&#x27;</span>,<span class="string">&#x27;I2&#x27;</span>,<span class="string">&#x27;I3&#x27;</span>,<span class="string">&#x27;I5&#x27;</span>],</span><br><span class="line">        <span class="string">&#x27;user9&#x27;</span>:[<span class="string">&#x27;I1&#x27;</span>,<span class="string">&#x27;I2&#x27;</span>,<span class="string">&#x27;I3&#x27;</span>]</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们首先对data进行变换，使用frozenset类型存储数据记录。</p>
+<p>在Python中，集合类型set是可变的，不存在哈希值。而frozenset是冻结的集合类型，不可变，存在哈希值。因此，使用frozenset类型存储的频繁项，可以作为字典的key保存下来，有利于后续创建频繁项集集合(key为频繁项，value为支持度）。更多的数据类型如OrderedDict，namedtuple等，可以参考Python的collection模块</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">data = &#123;v: <span class="built_in">frozenset</span>(Data[v]) <span class="keyword">for</span> v <span class="keyword">in</span> Data&#125;</span><br><span class="line">data</span><br></pre></td></tr></table></figure>
+
+
+
+
+<pre><code>&#123;&#39;user1&#39;: frozenset(&#123;&#39;I1&#39;, &#39;I2&#39;, &#39;I5&#39;&#125;),
+ &#39;user2&#39;: frozenset(&#123;&#39;I2&#39;, &#39;I4&#39;&#125;),
+ &#39;user3&#39;: frozenset(&#123;&#39;I2&#39;, &#39;I3&#39;&#125;),
+ &#39;user4&#39;: frozenset(&#123;&#39;I1&#39;, &#39;I2&#39;, &#39;I4&#39;&#125;),
+ &#39;user5&#39;: frozenset(&#123;&#39;I1&#39;, &#39;I3&#39;&#125;),
+ &#39;user6&#39;: frozenset(&#123;&#39;I2&#39;, &#39;I3&#39;&#125;),
+ &#39;user7&#39;: frozenset(&#123;&#39;I1&#39;, &#39;I3&#39;&#125;),
+ &#39;user8&#39;: frozenset(&#123;&#39;I1&#39;, &#39;I2&#39;, &#39;I3&#39;, &#39;I5&#39;&#125;),
+ &#39;user9&#39;: frozenset(&#123;&#39;I1&#39;, &#39;I2&#39;, &#39;I3&#39;&#125;)&#125;
+</code></pre>
+<p>1.1 生成频繁1项集<br>由于频繁项的长度为1，我们可以通过统计data中各个元素出现的频次，直接生成频繁1项集。项集使用Python中的字典类型进行存储，key表示频繁项，value表示对应的支持度。最小支持度为2。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">freq_1 = &#123;&#125;</span><br><span class="line"><span class="keyword">for</span> item <span class="keyword">in</span> data:</span><br><span class="line">    <span class="keyword">for</span> record <span class="keyword">in</span> data[item]:</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">frozenset</span>([record]) <span class="keyword">in</span> freq_1:</span><br><span class="line">            freq_1[<span class="built_in">frozenset</span>([record])] += <span class="number">1</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            freq_1[<span class="built_in">frozenset</span>([record])]  = <span class="number">1</span></span><br><span class="line"></span><br><span class="line">freq_1 = &#123;v:freq_1[v] <span class="keyword">for</span> v <span class="keyword">in</span> freq_1 <span class="keyword">if</span> freq_1[v] &gt;= <span class="number">2</span>&#125;</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">freq_1</span><br></pre></td></tr></table></figure>
+
+
+
+
+<pre><code>&#123;frozenset(&#123;&#39;I5&#39;&#125;): 2,
+ frozenset(&#123;&#39;I1&#39;&#125;): 6,
+ frozenset(&#123;&#39;I2&#39;&#125;): 7,
+ frozenset(&#123;&#39;I4&#39;&#125;): 2,
+ frozenset(&#123;&#39;I3&#39;&#125;): 6&#125;
+</code></pre>
+<p>1.2 生成频繁k项集<br>从k&gt;&#x3D;2 开始，根据得到的频繁(k−1)项集，生成频繁k项集。<br>这个过程由函数getFrequentItemSetWithSupport()负责，返回k频繁项集。具体来说，分为三步：</p>
+<p>第一步：连接步生成候选集Ck<br>第二步：剪枝步生成频繁k项集<br>第三步：选择符合设定条件（满足最小支持度）的频繁项，生成最终结果<br>在连接步中，我们将频繁(k−1) 项集与自身连结，生成k项候选集candidate_items。</p>
+<p>在剪枝步中，我们使用先验性质对候选项集进行过滤，减少运算量。这个性质就是：</p>
+<p>频繁项集的所有非空子集必然是频繁项集</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">getFrequentItemSetWithSupport函数用来寻找频繁k项集</span></span><br><span class="line"><span class="string">输入参数：</span></span><br><span class="line"><span class="string">frequent_k: 频繁k-1项集</span></span><br><span class="line"><span class="string">min_support：最小支持度</span></span><br><span class="line"><span class="string">item_list: 业务数据记录</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">返回参数：</span></span><br><span class="line"><span class="string">频繁k项集：&#123;频繁项：支持度，频繁项：支持度&#125;</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 当k &gt;= 2时</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">getFrequentItemSetWithSupport</span>(<span class="params">frequent_k, min_support, k, item_list</span>):</span><br><span class="line">    </span><br><span class="line">    items = frequent_k.keys()</span><br><span class="line">    </span><br><span class="line">    <span class="comment">#k项候选集</span></span><br><span class="line">    candidate_items = []</span><br><span class="line">    </span><br><span class="line">    current_k = &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">### 连接步，生成候选集</span></span><br><span class="line">    candidate_items = [m.union(n) <span class="keyword">for</span> m <span class="keyword">in</span> items <span class="keyword">for</span> n <span class="keyword">in</span> items <span class="keyword">if</span> m != n <span class="keyword">and</span> <span class="built_in">len</span>(m.union(n)) == k]</span><br><span class="line"> </span><br><span class="line">    <span class="comment">### 剪枝步，剔除含有非频繁项子集的项集</span></span><br><span class="line">    final_candidate = <span class="built_in">set</span>()</span><br><span class="line">    <span class="keyword">for</span> candidate <span class="keyword">in</span> candidate_items:</span><br><span class="line">        </span><br><span class="line">        sub_items = getSubset(candidate, (k - <span class="number">1</span>))</span><br><span class="line">    </span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">any</span>([item &lt; candidate <span class="keyword">for</span> item <span class="keyword">in</span> sub_items]):  </span><br><span class="line">            </span><br><span class="line">            final_candidate.add(candidate)</span><br><span class="line">            </span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">              </span><br><span class="line">    <span class="comment"># 遍历数据集data，对final_candidate中的元素进行统计，保留支持度大于最小阈值的频繁项</span></span><br><span class="line">    <span class="keyword">for</span> record <span class="keyword">in</span> item_list.items():</span><br><span class="line">        <span class="keyword">for</span> item <span class="keyword">in</span> final_candidate:</span><br><span class="line">            </span><br><span class="line">            <span class="comment">#数据记录record中含有频繁项item</span></span><br><span class="line">            <span class="keyword">if</span> item.issubset(record[<span class="number">1</span>]):     </span><br><span class="line">                </span><br><span class="line">                <span class="keyword">if</span> item <span class="keyword">in</span> current_k:</span><br><span class="line">                    current_k[item] += <span class="number">1</span>                </span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    current_k[item] = <span class="number">1</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> &#123;v: current_k[v] <span class="keyword">for</span> v <span class="keyword">in</span> current_k <span class="keyword">if</span> current_k[v] &gt;= min_support&#125;  </span><br></pre></td></tr></table></figure>
+
+<p>在函数getFrequentItemSetWithSupport中，我们自定义两个函数getSubset,和getAllSubets，分别返回项集的k项子集，以及所有非空子集。</p>
+<p>比如, 项集frozenset({‘I1’, ‘I2’, ‘I5’}), 它的2项子集应为：</p>
+<p>frozenset({‘I1’, ‘I2’}) frozenset({‘I1’, ‘I5’}) frozenset({‘I2’, ‘I5’})</p>
+<p>那么，我们使用以下代码，实现上述的功能。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">getSubset</span>(<span class="params">item, k</span>):</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">import</span> itertools <span class="keyword">as</span> its</span><br><span class="line">    <span class="keyword">return</span> [<span class="built_in">frozenset</span>(item) <span class="keyword">for</span> item <span class="keyword">in</span> its.combinations(item, k)]</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">example1 = <span class="built_in">frozenset</span>(&#123;<span class="string">&#x27;I1&#x27;</span>, <span class="string">&#x27;I2&#x27;</span>, <span class="string">&#x27;I5&#x27;</span>&#125;)</span><br><span class="line">getSubset(example1, <span class="number">2</span>)</span><br></pre></td></tr></table></figure>
+
+
+
+
+<pre><code>[frozenset(&#123;&#39;I1&#39;, &#39;I5&#39;&#125;), frozenset(&#123;&#39;I2&#39;, &#39;I5&#39;&#125;), frozenset(&#123;&#39;I1&#39;, &#39;I2&#39;&#125;)]
+</code></pre>
+<p>当然，我们通过getAllSubsets()函数，找到它的所有非空真子集：</p>
+<p>frozenset({‘I1’, ‘I2’}) frozenset({‘I1’, ‘I5’}) frozenset({‘I2’, ‘I5’}) frozenset({‘I1’}) frozenset({‘I2’}) frozenset({‘I5’})</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">getAllSubsets</span>(<span class="params">item</span>):</span><br><span class="line">    </span><br><span class="line">    subsets = []</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(item) - <span class="number">1</span>):</span><br><span class="line">    </span><br><span class="line">        subsets.extend(getSubset(item, i + <span class="number">1</span>))</span><br><span class="line">                       </span><br><span class="line">    <span class="keyword">return</span> subsets</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">getAllSubsets(example1)</span><br></pre></td></tr></table></figure>
+
+
+
+
+<pre><code>[frozenset(&#123;&#39;I5&#39;&#125;),
+ frozenset(&#123;&#39;I1&#39;&#125;),
+ frozenset(&#123;&#39;I2&#39;&#125;),
+ frozenset(&#123;&#39;I1&#39;, &#39;I5&#39;&#125;),
+ frozenset(&#123;&#39;I2&#39;, &#39;I5&#39;&#125;),
+ frozenset(&#123;&#39;I1&#39;, &#39;I2&#39;&#125;)]
+</code></pre>
+<p>项集的子集可以通过排列组合来得到，我们可以调用itertools中的combinations函数来具体实现返回子集的功能。</p>
+<p>至此，反复调用getFrequentItemSetWithSuppot(), 得到完整的频繁k项集集合，直到达到停止条件，集频繁k项集为空。</p>
+<p>当数据记录的长度很长时，算法需要逐个检查频繁k项集是否为空；另外，我们在具体任务中寻找的频繁项长度也不会过长，因此</p>
+<p>我们选择通过控制k的取值来获取指定的频繁k项集集合。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">k = <span class="number">2</span></span><br><span class="line">final_itemsets= []</span><br><span class="line">final_itemsets.append(freq_1)</span><br><span class="line">min_support = <span class="number">2</span></span><br><span class="line">min_conf = <span class="number">0.6</span></span><br><span class="line"></span><br><span class="line">frequent_k_minus_1 = freq_1</span><br><span class="line"><span class="comment"># </span></span><br><span class="line"><span class="comment">#while frequent_k != &#123;&#125;:</span></span><br><span class="line"><span class="keyword">while</span> k &lt;= <span class="number">3</span>:</span><br><span class="line">    <span class="built_in">print</span>(frequent_k_minus_1)</span><br><span class="line">    <span class="built_in">print</span> (<span class="string">&quot;&quot;</span>)</span><br><span class="line">    frequent_k = getFrequentItemSetWithSupport(frequent_k_minus_1, min_support, k, data)</span><br><span class="line">    final_itemsets.append(frequent_k)</span><br><span class="line">    frequent_k_minus_1 = frequent_k</span><br><span class="line">    k += <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<pre><code>&#123;frozenset(&#123;&#39;I5&#39;&#125;): 2, frozenset(&#123;&#39;I1&#39;&#125;): 6, frozenset(&#123;&#39;I2&#39;&#125;): 7, frozenset(&#123;&#39;I4&#39;&#125;): 2, frozenset(&#123;&#39;I3&#39;&#125;): 6&#125;
+
+&#123;frozenset(&#123;&#39;I1&#39;, &#39;I2&#39;&#125;): 4, frozenset(&#123;&#39;I5&#39;, &#39;I1&#39;&#125;): 2, frozenset(&#123;&#39;I5&#39;, &#39;I2&#39;&#125;): 2, frozenset(&#123;&#39;I4&#39;, &#39;I2&#39;&#125;): 2, frozenset(&#123;&#39;I3&#39;, &#39;I2&#39;&#125;): 4, frozenset(&#123;&#39;I1&#39;, &#39;I3&#39;&#125;): 4&#125;
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">final_itemsets</span><br></pre></td></tr></table></figure>
+
+
+
+
+<pre><code>[&#123;frozenset(&#123;&#39;I5&#39;&#125;): 2,
+  frozenset(&#123;&#39;I1&#39;&#125;): 6,
+  frozenset(&#123;&#39;I2&#39;&#125;): 7,
+  frozenset(&#123;&#39;I4&#39;&#125;): 2,
+  frozenset(&#123;&#39;I3&#39;&#125;): 6&#125;,
+ &#123;frozenset(&#123;&#39;I1&#39;, &#39;I2&#39;&#125;): 4,
+  frozenset(&#123;&#39;I1&#39;, &#39;I5&#39;&#125;): 2,
+  frozenset(&#123;&#39;I2&#39;, &#39;I5&#39;&#125;): 2,
+  frozenset(&#123;&#39;I2&#39;, &#39;I4&#39;&#125;): 2,
+  frozenset(&#123;&#39;I2&#39;, &#39;I3&#39;&#125;): 4,
+  frozenset(&#123;&#39;I1&#39;, &#39;I3&#39;&#125;): 4&#125;,
+ &#123;frozenset(&#123;&#39;I1&#39;, &#39;I2&#39;, &#39;I5&#39;&#125;): 2, frozenset(&#123;&#39;I1&#39;, &#39;I2&#39;, &#39;I3&#39;&#125;): 2&#125;]
+</code></pre>
+<p>1.3 生成关联规则<br>生成频繁项集之后，我们可以直接得到同时满足最小支持度和最小置信度的强关联规则。例如，对于频繁项集{‘A’,’B’}来说，关联规则 A→B 的置信度如下所示： conf(A→B)&#x3D;support(A,B)&#x2F;support(A)</p>
+<p>生成关联规则主要有以下几步：</p>
+<p>对于频繁k项集中的每个元素value，调用getAllSubsets()函数得到value的所有非空子集<br>对于非空子集中的每个元素condition，找到除去condition的所有剩余元素conclusion_items<br>根据置信度公式，计算confidence<br>将所有满足条件(大于min_conf)的潜在关联规则[[condition，conclusoin_items], confidence]放入association_rules中</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">association_rules = []</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> item_set <span class="keyword">in</span> final_itemsets[<span class="number">1</span>:]:</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> value <span class="keyword">in</span> item_set:</span><br><span class="line">        <span class="built_in">print</span> (<span class="string">&#x27;frequent item set: &#x27;</span>, value)</span><br><span class="line">        <span class="comment">#形如 if condition, then conclusion</span></span><br><span class="line">        <span class="keyword">for</span> condition <span class="keyword">in</span> getAllSubsets(value):</span><br><span class="line">            <span class="built_in">print</span> (<span class="string">&#x27;    condition: &#x27;</span>, condition)</span><br><span class="line">            conclusion_items = <span class="built_in">frozenset</span>(x <span class="keyword">for</span> x <span class="keyword">in</span> value <span class="keyword">if</span> x <span class="keyword">not</span> <span class="keyword">in</span> condition)</span><br><span class="line">            <span class="built_in">print</span> (<span class="string">&#x27;    conclusion: &#x27;</span>, conclusion_items)</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">len</span>(conclusion_items) &gt; <span class="number">0</span>:</span><br><span class="line">                    </span><br><span class="line">                confidence = <span class="built_in">float</span>(final_itemsets[<span class="built_in">len</span>(value) - <span class="number">1</span>][value])/final_itemsets[<span class="built_in">len</span>(condition) - <span class="number">1</span>][condition]</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">&quot;    confidence:&quot;</span>,confidence)</span><br><span class="line">                <span class="keyword">if</span> confidence &gt; min_conf:</span><br><span class="line">                        </span><br><span class="line">                    association_rules.append([[condition, conclusion_items],</span><br><span class="line">                                           confidence])</span><br><span class="line">                <span class="built_in">print</span> (<span class="string">&#x27;&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<pre><code>frequent item set:  frozenset(&#123;&#39;I1&#39;, &#39;I2&#39;&#125;)
+    condition:  frozenset(&#123;&#39;I1&#39;&#125;)
+    conclusion:  frozenset(&#123;&#39;I2&#39;&#125;)
+    confidence: 0.6666666666666666
+
+    condition:  frozenset(&#123;&#39;I2&#39;&#125;)
+    conclusion:  frozenset(&#123;&#39;I1&#39;&#125;)
+    confidence: 0.5714285714285714
+
+frequent item set:  frozenset(&#123;&#39;I5&#39;, &#39;I1&#39;&#125;)
+    condition:  frozenset(&#123;&#39;I5&#39;&#125;)
+    conclusion:  frozenset(&#123;&#39;I1&#39;&#125;)
+    confidence: 1.0
+
+    condition:  frozenset(&#123;&#39;I1&#39;&#125;)
+    conclusion:  frozenset(&#123;&#39;I5&#39;&#125;)
+    confidence: 0.3333333333333333
+
+frequent item set:  frozenset(&#123;&#39;I5&#39;, &#39;I2&#39;&#125;)
+    condition:  frozenset(&#123;&#39;I5&#39;&#125;)
+    conclusion:  frozenset(&#123;&#39;I2&#39;&#125;)
+    confidence: 1.0
+
+    condition:  frozenset(&#123;&#39;I2&#39;&#125;)
+    conclusion:  frozenset(&#123;&#39;I5&#39;&#125;)
+    confidence: 0.2857142857142857
+
+frequent item set:  frozenset(&#123;&#39;I4&#39;, &#39;I2&#39;&#125;)
+    condition:  frozenset(&#123;&#39;I4&#39;&#125;)
+    conclusion:  frozenset(&#123;&#39;I2&#39;&#125;)
+    confidence: 1.0
+
+    condition:  frozenset(&#123;&#39;I2&#39;&#125;)
+    conclusion:  frozenset(&#123;&#39;I4&#39;&#125;)
+    confidence: 0.2857142857142857
+
+frequent item set:  frozenset(&#123;&#39;I3&#39;, &#39;I2&#39;&#125;)
+    condition:  frozenset(&#123;&#39;I3&#39;&#125;)
+    conclusion:  frozenset(&#123;&#39;I2&#39;&#125;)
+    confidence: 0.6666666666666666
+
+    condition:  frozenset(&#123;&#39;I2&#39;&#125;)
+    conclusion:  frozenset(&#123;&#39;I3&#39;&#125;)
+    confidence: 0.5714285714285714
+
+frequent item set:  frozenset(&#123;&#39;I1&#39;, &#39;I3&#39;&#125;)
+    condition:  frozenset(&#123;&#39;I1&#39;&#125;)
+    conclusion:  frozenset(&#123;&#39;I3&#39;&#125;)
+    confidence: 0.6666666666666666
+
+    condition:  frozenset(&#123;&#39;I3&#39;&#125;)
+    conclusion:  frozenset(&#123;&#39;I1&#39;&#125;)
+    confidence: 0.6666666666666666
+
+frequent item set:  frozenset(&#123;&#39;I5&#39;, &#39;I1&#39;, &#39;I2&#39;&#125;)
+    condition:  frozenset(&#123;&#39;I5&#39;&#125;)
+    conclusion:  frozenset(&#123;&#39;I1&#39;, &#39;I2&#39;&#125;)
+    confidence: 1.0
+
+    condition:  frozenset(&#123;&#39;I1&#39;&#125;)
+    conclusion:  frozenset(&#123;&#39;I5&#39;, &#39;I2&#39;&#125;)
+    confidence: 0.3333333333333333
+
+    condition:  frozenset(&#123;&#39;I2&#39;&#125;)
+    conclusion:  frozenset(&#123;&#39;I5&#39;, &#39;I1&#39;&#125;)
+    confidence: 0.2857142857142857
+
+    condition:  frozenset(&#123;&#39;I5&#39;, &#39;I1&#39;&#125;)
+    conclusion:  frozenset(&#123;&#39;I2&#39;&#125;)
+    confidence: 1.0
+
+    condition:  frozenset(&#123;&#39;I5&#39;, &#39;I2&#39;&#125;)
+    conclusion:  frozenset(&#123;&#39;I1&#39;&#125;)
+    confidence: 1.0
+
+    condition:  frozenset(&#123;&#39;I1&#39;, &#39;I2&#39;&#125;)
+    conclusion:  frozenset(&#123;&#39;I5&#39;&#125;)
+    confidence: 0.5
+
+frequent item set:  frozenset(&#123;&#39;I3&#39;, &#39;I1&#39;, &#39;I2&#39;&#125;)
+    condition:  frozenset(&#123;&#39;I3&#39;&#125;)
+    conclusion:  frozenset(&#123;&#39;I1&#39;, &#39;I2&#39;&#125;)
+    confidence: 0.3333333333333333
+
+    condition:  frozenset(&#123;&#39;I1&#39;&#125;)
+    conclusion:  frozenset(&#123;&#39;I3&#39;, &#39;I2&#39;&#125;)
+    confidence: 0.3333333333333333
+
+    condition:  frozenset(&#123;&#39;I2&#39;&#125;)
+    conclusion:  frozenset(&#123;&#39;I1&#39;, &#39;I3&#39;&#125;)
+    confidence: 0.2857142857142857
+
+    condition:  frozenset(&#123;&#39;I1&#39;, &#39;I3&#39;&#125;)
+    conclusion:  frozenset(&#123;&#39;I2&#39;&#125;)
+    confidence: 0.5
+
+    condition:  frozenset(&#123;&#39;I3&#39;, &#39;I2&#39;&#125;)
+    conclusion:  frozenset(&#123;&#39;I1&#39;&#125;)
+    confidence: 0.5
+
+    condition:  frozenset(&#123;&#39;I1&#39;, &#39;I2&#39;&#125;)
+    conclusion:  frozenset(&#123;&#39;I3&#39;&#125;)
+    confidence: 0.5
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">association_rules</span><br></pre></td></tr></table></figure>
+
+
+
+
+<pre><code>[[[frozenset(&#123;&#39;I1&#39;&#125;), frozenset(&#123;&#39;I2&#39;&#125;)], 0.6666666666666666],
+ [[frozenset(&#123;&#39;I5&#39;&#125;), frozenset(&#123;&#39;I1&#39;&#125;)], 1.0],
+ [[frozenset(&#123;&#39;I5&#39;&#125;), frozenset(&#123;&#39;I2&#39;&#125;)], 1.0],
+ [[frozenset(&#123;&#39;I4&#39;&#125;), frozenset(&#123;&#39;I2&#39;&#125;)], 1.0],
+ [[frozenset(&#123;&#39;I3&#39;&#125;), frozenset(&#123;&#39;I2&#39;&#125;)], 0.6666666666666666],
+ [[frozenset(&#123;&#39;I1&#39;&#125;), frozenset(&#123;&#39;I3&#39;&#125;)], 0.6666666666666666],
+ [[frozenset(&#123;&#39;I3&#39;&#125;), frozenset(&#123;&#39;I1&#39;&#125;)], 0.6666666666666666],
+ [[frozenset(&#123;&#39;I5&#39;&#125;), frozenset(&#123;&#39;I1&#39;, &#39;I2&#39;&#125;)], 1.0],
+ [[frozenset(&#123;&#39;I1&#39;, &#39;I5&#39;&#125;), frozenset(&#123;&#39;I2&#39;&#125;)], 1.0],
+ [[frozenset(&#123;&#39;I2&#39;, &#39;I5&#39;&#125;), frozenset(&#123;&#39;I1&#39;&#125;)], 1.0]]
+</code></pre>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://zxb6.github.io">ZXXB</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://zxb6.github.io/2022/11/09/%E5%85%B3%E8%81%94%E8%A7%84%E5%88%99%E6%8C%96%E6%8E%98Aprior%E7%AE%97%E6%B3%95/">https://zxb6.github.io/2022/11/09/%E5%85%B3%E8%81%94%E8%A7%84%E5%88%99%E6%8C%96%E6%8E%98Aprior%E7%AE%97%E6%B3%95/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://zxb6.github.io" target="_blank">L!sten</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://hakaimg.com/i/2022/11/09/po9j12.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/11/09/%E5%AD%A6%E7%94%9F%E6%88%90%E7%BB%A9%E5%85%B3%E8%81%94%E5%88%86%E6%9E%90/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://hakaimg.com/i/2022/11/09/po8zyk.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">学生成绩关联分析</div></div></a></div><div class="next-post pull-right"><a href="/2022/10/05/2021-9-17%20Markdown%20Reference%20150800/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://hakaimg.com/i/2022/10/20/sqvxbt.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Markdown Reference</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://i.loli.net/2021/02/24/5O1day2nriDzjSu.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">ZXXB</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">11</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/11/09/%E5%AD%A6%E7%94%9F%E6%88%90%E7%BB%A9%E5%85%B3%E8%81%94%E5%88%86%E6%9E%90/" title="学生成绩关联分析"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://hakaimg.com/i/2022/11/09/po8zyk.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="学生成绩关联分析"/></a><div class="content"><a class="title" href="/2022/11/09/%E5%AD%A6%E7%94%9F%E6%88%90%E7%BB%A9%E5%85%B3%E8%81%94%E5%88%86%E6%9E%90/" title="学生成绩关联分析">学生成绩关联分析</a><time datetime="2022-11-09T07:50:16.000Z" title="发表于 2022-11-09 15:50:16">2022-11-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/11/09/%E5%85%B3%E8%81%94%E8%A7%84%E5%88%99%E6%8C%96%E6%8E%98Aprior%E7%AE%97%E6%B3%95/" title="关联规则挖掘Aprior算法"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://hakaimg.com/i/2022/11/09/po9j12.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="关联规则挖掘Aprior算法"/></a><div class="content"><a class="title" href="/2022/11/09/%E5%85%B3%E8%81%94%E8%A7%84%E5%88%99%E6%8C%96%E6%8E%98Aprior%E7%AE%97%E6%B3%95/" title="关联规则挖掘Aprior算法">关联规则挖掘Aprior算法</a><time datetime="2022-11-09T07:38:16.000Z" title="发表于 2022-11-09 15:38:16">2022-11-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/10/05/2021-9-17%20Markdown%20Reference%20150800/" title="Markdown Reference"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://hakaimg.com/i/2022/10/20/sqvxbt.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Markdown Reference"/></a><div class="content"><a class="title" href="/2022/10/05/2021-9-17%20Markdown%20Reference%20150800/" title="Markdown Reference">Markdown Reference</a><time datetime="2022-10-05T08:23:04.000Z" title="发表于 2022-10-05 16:23:04">2022-10-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/07/14/2021-9-17%20python%20%E7%AC%AC%E4%B8%80%E6%AC%A1%E8%AF%BE%E5%A0%82%E4%BD%9C%E4%B8%9A%20154423/" title="python第一次课堂作业"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://hakaimg.com/i/2022/10/20/sqwx0r.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="python第一次课堂作业"/></a><div class="content"><a class="title" href="/2022/07/14/2021-9-17%20python%20%E7%AC%AC%E4%B8%80%E6%AC%A1%E8%AF%BE%E5%A0%82%E4%BD%9C%E4%B8%9A%20154423/" title="python第一次课堂作业">python第一次课堂作业</a><time datetime="2022-07-14T08:23:04.000Z" title="发表于 2022-07-14 16:23:04">2022-07-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/07/14/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" title="我的第一篇博客"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://hakaimg.com/i/2022/10/20/sqyf1m.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="我的第一篇博客"/></a><div class="content"><a class="title" href="/2022/07/14/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/" title="我的第一篇博客">我的第一篇博客</a><time datetime="2022-07-14T08:23:04.000Z" title="发表于 2022-07-14 16:23:04">2022-07-14</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By ZXXB</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><div class="aplayer no-destroy" data-id="1708664797" data-server="tencent" data-type="playlist"   data-order="list" data-fixed="true" data-preload="auto" data-autoplay="false" data-mutex="true" ></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --><script data-pjax>
+  function butterfly_clock_anzhiyu_injector_config(){
+    var parent_div_git = document.getElementsByClassName('sticky_layout')[0];
+    var item_html = '<div class="card-widget card-clock"><div class="card-glass"><div class="card-background"><div class="card-content"><div id="hexo_electric_clock"><img class="entered loading" id="card-clock-loading" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/loading.gif" style="height: 120px; width: 100%;" data-ll-status="loading"/></div></div></div></div></div>';
+    console.log('已挂载butterfly_clock_anzhiyu')
+    if(parent_div_git) {
+      parent_div_git.insertAdjacentHTML("afterbegin",item_html)
+    }
+  }
+  var elist = 'null'.split(',');
+  var cpage = location.pathname;
+  var epage = 'all';
+  var qweather_key = 'b16a1fa0e63c46a4b8f28abfb06ae3fe';
+  var gaud_map_key = 'e2b04289e870b005374ee030148d64fd&s=rsv3';
+  var baidu_ak_key = 'undefined';
+  var flag = 0;
+  var clock_rectangle = '112.982279, 28.19409';
+  var clock_default_rectangle_enable = 'false';
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_clock_anzhiyu_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_clock_anzhiyu_injector_config();
+  }
+  </script><script src="https://widget.qweather.net/simple/static/js/he-simple-common.js?v=2.0"></script><script data-pjax src="https://cdn.cbd.int/hexo-butterfly-clock-anzhiyu/lib/clock.min.js"></script><div class="js-pjax"><script async="async">var arr = document.getElementsByClassName('recent-post-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '1.5s');
+    arr[i].setAttribute('data-wow-delay', '200ms');
+    arr[i].setAttribute('data-wow-offset', '30');
+    arr[i].setAttribute('data-wow-iteration', '1');
+  }</script><script async="async">var arr = document.getElementsByClassName('card-widget');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__zoomIn');
+    arr[i].setAttribute('data-wow-duration', '');
+    arr[i].setAttribute('data-wow-delay', '200ms');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script><script async="async">var arr = document.getElementsByClassName('flink-list-card');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__flipInY');
+    arr[i].setAttribute('data-wow-duration', '3s');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script><script async="async">var arr = document.getElementsByClassName('flink-list-card');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__animated');
+    arr[i].setAttribute('data-wow-duration', '3s');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script><script async="async">var arr = document.getElementsByClassName('article-sort-item');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__slideInRight');
+    arr[i].setAttribute('data-wow-duration', '1.5s');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script><script async="async">var arr = document.getElementsByClassName('site-card');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__flipInY');
+    arr[i].setAttribute('data-wow-duration', '3s');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script><script async="async">var arr = document.getElementsByClassName('site-card');
+for(var i = 0;i<arr.length;i++){
+    arr[i].classList.add('wow');
+    arr[i].classList.add('animate__animated');
+    arr[i].setAttribute('data-wow-duration', '3s');
+    arr[i].setAttribute('data-wow-delay', '');
+    arr[i].setAttribute('data-wow-offset', '');
+    arr[i].setAttribute('data-wow-iteration', '');
+  }</script></div><script defer src="https://cdn.cbd.int/hexo-butterfly-wowjs/lib/wow.min.js"></script><script defer src="https://cdn.cbd.int/hexo-butterfly-wowjs/lib/wow_init.js"></script><script data-pjax>
+  function butterfly_footer_beautify_injector_config(){
+    var parent_div_git = document.getElementById('footer-wrap');
+    var item_html = '<div id="workboard"></div><p id="ghbdages"><a class="github-badge" target="_blank" href="https://hexo.io/" style="margin-inline:5px" data-title="博客框架为Hexo_v5.4.0" title=""><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&amp;logo=hexo" alt=""/></a><a class="github-badge" target="_blank" href="https://butterfly.js.org/" style="margin-inline:5px" data-title="主题版本Butterfly_v4.2.2" title=""><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&amp;logo=bitdefender" alt=""/></a><a class="github-badge" target="_blank" href="https://www.jsdelivr.com/" style="margin-inline:5px" data-title="本站使用JsDelivr为静态资源提供CDN加速" title=""><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/CDN-jsDelivr-orange?style=flat&amp;logo=jsDelivr" alt=""/></a><a class="github-badge" target="_blank" href="https://github.com/" style="margin-inline:5px" data-title="本站项目由Github托管" title=""><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&amp;logo=GitHub" alt=""/></a><a class="github-badge" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" style="margin-inline:5px" data-title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可" title=""><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&amp;logo=Claris" alt=""/></a></p>';
+    console.log('已挂载butterfly_footer_beautify')
+    parent_div_git.insertAdjacentHTML("beforeend",item_html)
+    }
+  var elist = 'null'.split(',');
+  var cpage = location.pathname;
+  var epage = 'all';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_footer_beautify_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_footer_beautify_injector_config();
+  }
+  </script><script async src="/css/runtime.min.js"></script><!-- hexo injector body_end end --></body></html>
